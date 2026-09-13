@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  PROFESSIONAL
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  COMPLETED
+  NO_SHOW
+  CANCELLED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         UserRole @default(ADMIN)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  professional Professional?
+
+  @@map("users")
+}
+
+model Professional {
+  id                String   @id @default(uuid())
+  userId            String?  @unique
+  user              User?    @relation(fields: [userId], references: [id])
+  name              String
+  phone             String?
+  commissionPercent Float    @default(0)
+  active            Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  appointments Appointment[]
+
+  @@map("professionals")
+}
+
+model Client {
+  id          String   @id @default(uuid())
+  name        String
+  phone       String   @unique
+  instagram   String?
+  birthday    DateTime?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  appointments Appointment[]
+  hairRecord   HairRecord?
+
+  @@map("clients")
+}
+
+model Service {
+  id              String   @id @default(uuid())
+  name            String
+  durationMinutes Int
+  price           Decimal  @db.Decimal(10, 2)
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  appointments Appointment[]
+
+  @@map("services")
+}
+
+model Appointment {
+  id             String            @id @default(uuid())
+  clientId       String
+  client         Client            @relation(fields: [clientId], references: [id])
+  professionalId String
+  professional   Professional      @relation(fields: [professionalId], references: [id])
+  serviceId      String
+  service        Service           @relation(fields: [serviceId], references: [id])
+  scheduledAt    DateTime
+  durationMinutes Int
+  status         AppointmentStatus @default(SCHEDULED)
+  price          Decimal           @db.Decimal(10, 2)
+  notes          String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([professionalId, scheduledAt])
+  @@map("appointments")
+}
+
+model HairRecord {
+  id             String   @id @default(uuid())
+  clientId       String   @unique
+  client         Client   @relation(fields: [clientId], references: [id])
+  hairType       String?
+  chemicalHistory String?
+  lastChemicalAt DateTime?
+  productsUsed   String?
+  colorFormula   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("hair_records")
+}
