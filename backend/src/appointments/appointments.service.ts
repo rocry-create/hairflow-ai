@@ -7,11 +7,29 @@ import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 export class AppointmentsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(dto: CreateAppointmentDto) {
-    const service = await this.prisma.service.findUnique({ where: { id: dto.serviceId } });
+  private async assertProfessionalCanDoService(professionalId: string, serviceId: string) {
+    const [professional, service] = await Promise.all([
+      this.prisma.professional.findUnique({ where: { id: professionalId } }),
+      this.prisma.service.findUnique({ where: { id: serviceId } }),
+    ]);
+
+    if (!professional) {
+      throw new BadRequestException('Profissional inválido');
+    }
     if (!service) {
       throw new BadRequestException('Serviço inválido');
     }
+    if (service.isMegaHair && !professional.isMegaHairSpecialist) {
+      throw new BadRequestException(
+        'Este serviço de mega hair só pode ser feito por uma mega hairista',
+      );
+    }
+
+    return service;
+  }
+
+  async create(dto: CreateAppointmentDto) {
+    const service = await this.assertProfessionalCanDoService(dto.professionalId, dto.serviceId);
 
     const scheduledAt = new Date(dto.scheduledAt);
     await this.assertNoConflict(dto.professionalId, scheduledAt, service.durationMinutes);
@@ -61,15 +79,16 @@ export class AppointmentsService {
     let durationMinutes = current.durationMinutes;
     let price = current.price;
 
-    if (dto.serviceId && dto.serviceId !== current.serviceId) {
-      const service = await this.prisma.service.findUnique({ where: { id: dto.serviceId } });
-      if (!service) throw new BadRequestException('Serviço inválido');
+    const professionalId = dto.professionalId ?? current.professionalId;
+    const serviceId = dto.serviceId ?? current.serviceId;
+
+    if (dto.serviceId || dto.professionalId) {
+      const service = await this.assertProfessionalCanDoService(professionalId, serviceId);
       durationMinutes = service.durationMinutes;
       price = service.price;
     }
 
     const scheduledAt = dto.scheduledAt ? new Date(dto.scheduledAt) : current.scheduledAt;
-    const professionalId = dto.professionalId ?? current.professionalId;
 
     if (dto.scheduledAt || dto.professionalId || dto.serviceId) {
       await this.assertNoConflict(professionalId, scheduledAt, durationMinutes, id);

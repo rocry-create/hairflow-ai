@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString, Max, Min, MinLength } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString, Max, Min, MinLength } from 'class-validator';
 
 export class CreateProfessionalDto {
   @IsString()
@@ -14,4 +14,8 @@ export class CreateProfessionalDto {
   @Min(0)
   @Max(100)
   commissionPercent?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  isMegaHairSpecialist?: boolean;
 }

@@ -1,4 +1,12 @@
-import { IsInt, IsNumber, IsString, Min, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+  MinLength,
+} from 'class-validator';
 
 export class CreateServiceDto {
   @IsString()
@@ -12,4 +20,17 @@ export class CreateServiceDto {
   @IsNumber()
   @Min(0)
   price: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  priceMax?: number | null;
+
+  @IsOptional()
+  @IsBoolean()
+  requiresEvaluation?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  isMegaHair?: boolean;
 }

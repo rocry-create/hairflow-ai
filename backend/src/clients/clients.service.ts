@@ -69,7 +69,17 @@ export class ClientsService {
 
   async remove(id: string) {
     await this.findOne(id);
-    return this.prisma.client.delete({ where: { id } });
+
+    return this.prisma.$transaction(async (tx) => {
+      const conversation = await tx.conversation.findUnique({ where: { clientId: id } });
+      if (conversation) {
+        await tx.message.deleteMany({ where: { conversationId: conversation.id } });
+        await tx.conversation.delete({ where: { id: conversation.id } });
+      }
+      await tx.appointment.deleteMany({ where: { clientId: id } });
+      await tx.hairRecord.deleteMany({ where: { clientId: id } });
+      return tx.client.delete({ where: { id } });
+    });
   }
 
   async findInactive(days: number) {

@@ -41,6 +41,7 @@ model Professional {
   name              String
   phone             String?
   commissionPercent Float    @default(0)
+  isMegaHairSpecialist Boolean @default(false)
   active            Boolean  @default(true)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -62,6 +63,7 @@ model Client {
 
   appointments Appointment[]
   hairRecord   HairRecord?
+  conversation Conversation?
 
   @@map("clients")
 }
@@ -71,6 +73,9 @@ model Service {
   name            String
   durationMinutes Int
   price           Decimal  @db.Decimal(10, 2)
+  priceMax           Decimal?  @db.Decimal(10, 2)
+  requiresEvaluation Boolean   @default(false)
+  isMegaHair         Boolean   @default(false)
   active          Boolean  @default(true)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -113,4 +118,45 @@ model HairRecord {
   updatedAt      DateTime @updatedAt
 
   @@map("hair_records")
+}
+
+enum MessageRole {
+  CLIENT
+  AI
+  HUMAN
+}
+
+enum ConversationStage {
+  NOVO_CONTATO
+  PEDIU_ORCAMENTO
+  AVALIACAO_MARCADA
+  COMPARECEU
+  FECHOU_SERVICO
+  POS_VENDA
+}
+
+model Conversation {
+  id        String            @id @default(uuid())
+  clientId  String            @unique
+  client    Client            @relation(fields: [clientId], references: [id])
+  stage     ConversationStage @default(NOVO_CONTATO)
+  aiEnabled Boolean           @default(true)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  messages Message[]
+
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  role           MessageRole
+  content        String
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
 }

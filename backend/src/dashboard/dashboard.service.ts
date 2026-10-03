@@ -29,21 +29,32 @@ export class DashboardService {
     const byProfessional = new Map();
     for (const appt of completed) {
       const key = appt.professionalId;
+      const commissionPercent = Number(appt.professional.commissionPercent ?? 0);
       const entry = byProfessional.get(key) ?? {
         name: appt.professional.name,
         count: 0,
         revenue: 0,
+        commissionPercent,
+        commission: 0,
       };
       entry.count += 1;
       entry.revenue += Number(appt.price);
+      entry.commission += (Number(appt.price) * commissionPercent) / 100;
       byProfessional.set(key, entry);
     }
+
+    const totalComissoes = Array.from(byProfessional.values()).reduce(
+      (sum, p) => sum + p.commission,
+      0,
+    );
 
     return {
       period: { from, to },
       financeiro: {
         faturamento: revenue,
         ticketMedio,
+        totalComissoes,
+        lucroLiquido: revenue - totalComissoes,
         servicosMaisVendidos: Array.from(byService.values()).sort((a, b) => b.count - a.count),
         profissionaisQueMaisFaturam: Array.from(byProfessional.values()).sort(
           (a, b) => b.revenue - a.revenue,
