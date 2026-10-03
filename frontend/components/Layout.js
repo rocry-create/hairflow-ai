@@ -23,6 +23,7 @@ const NAV = [
       { href: '/services', label: 'Serviços', icon: 'scissors' },
       { href: '/professionals', label: 'Profissionais', icon: 'team' },
       { href: '/financeiro', label: 'Financeiro', icon: 'money' },
+      { href: '/campaigns', label: 'Campanhas', icon: 'chat' },
     ],
   },
 ];

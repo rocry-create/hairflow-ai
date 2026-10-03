@@ -160,3 +160,50 @@ model Message {
   @@index([conversationId, createdAt])
   @@map("messages")
 }
+
+enum CampaignStatus {
+  RUNNING
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum RecipientStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model Campaign {
+  id          String         @id @default(uuid())
+  name        String
+  message     String
+  segment     String
+  days        Int?
+  status      CampaignStatus @default(RUNNING)
+  total       Int            @default(0)
+  sentCount   Int            @default(0)
+  failedCount Int            @default(0)
+  createdAt   DateTime       @default(now())
+  startedAt   DateTime?
+  finishedAt  DateTime?
+
+  recipients CampaignRecipient[]
+
+  @@map("campaigns")
+}
+
+model CampaignRecipient {
+  id         String          @id @default(uuid())
+  campaignId String
+  campaign   Campaign        @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  clientId   String
+  name       String
+  phone      String
+  status     RecipientStatus @default(PENDING)
+  error      String?
+  sentAt     DateTime?
+
+  @@index([campaignId, status])
+  @@map("campaign_recipients")
+}

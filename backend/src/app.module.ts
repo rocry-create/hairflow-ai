@@ -9,6 +9,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { HairRecordsModule } from './hair-records/hair-records.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { WhatsappModule } from './whatsapp/whatsapp.module';
+import { CampaignsModule } from './campaigns/campaigns.module';
 import { AppController } from './app.controller';
 
 @Module({
@@ -23,6 +24,7 @@ import { AppController } from './app.controller';
     HairRecordsModule,
     DashboardModule,
     WhatsappModule,
+    CampaignsModule,
   ],
   controllers: [AppController],
 })
