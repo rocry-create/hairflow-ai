@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import { apiFetch } from '../../lib/api';
 
 export default function ClientsPage() {
+  const router = useRouter();
   const [clients, setClients] = useState([]);
   const [search, setSearch] = useState('');
   const [error, setError] = useState('');
@@ -58,6 +60,11 @@ export default function ClientsPage() {
 
   return (
     <Layout title="Clientes">
+      {router.query.salvo && (
+        <div role="status" aria-live="polite" style={{ color: '#15803d', marginBottom: 10 }}>
+          Ficha capilar de {router.query.salvo} salva.
+        </div>
+      )}
       {error && <div className="error-box">{error}</div>}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
@@ -134,6 +141,14 @@ export default function ClientsPage() {
                 <td>{c.instagram || '-'}</td>
                 <td>{new Date(c.createdAt).toLocaleDateString('pt-BR')}</td>
                 <td>
+                  <a
+                    href={'/clients/' + c.id + '?name=' + encodeURIComponent(c.name)}
+                    className="btn-secondary"
+                    style={{ padding: '6px 12px', fontSize: 13, marginRight: 8, textDecoration: 'none', display: 'inline-block' }}
+                    aria-label={'Ficha capilar de ' + c.name}
+                  >
+                    Ficha capilar
+                  </a>
                   <button
                     className="btn-secondary"
                     style={{ padding: '6px 12px', fontSize: 13, color: 'var(--danger)' }}
