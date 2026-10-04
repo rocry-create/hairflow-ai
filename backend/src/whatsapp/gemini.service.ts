@@ -68,7 +68,7 @@ export class GeminiService {
     this.apiKey = this.config.get<string>('GOOGLE_API_KEY');
   }
 
-  private buildSystemPrompt(clientName: string, services: ServiceInfo[]) {
+  private buildSystemPrompt(clientName: string, services: ServiceInfo[], extra = '') {
     let servicesBlock = 'Nenhum servico cadastrado no momento.';
     if (services.length > 0) {
       servicesBlock = services.map(describeService).join('\n');
@@ -76,6 +76,7 @@ export class GeminiService {
 
     return (
       BASE_PROMPT +
+      extra +
       '\n\nServicos e precos cadastrados no sistema:\n' +
       servicesBlock +
       '\n\nO nome do cliente e ' +
@@ -100,6 +101,7 @@ export class GeminiService {
     history: { role: string; content: string }[],
     clientName: string,
     services: ServiceInfo[] = [],
+    extra = '',
   ) {
     if (!this.apiKey) {
       this.logger.warn('GOOGLE_API_KEY nao configurada; usando resposta padrao.');
@@ -113,7 +115,7 @@ export class GeminiService {
 
     const requestBody = {
       system_instruction: {
-        parts: [{ text: this.buildSystemPrompt(clientName, services) }],
+        parts: [{ text: this.buildSystemPrompt(clientName, services, extra) }],
       },
       contents,
       generationConfig: {

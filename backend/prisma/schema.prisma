@@ -141,6 +141,7 @@ model Conversation {
   client    Client            @relation(fields: [clientId], references: [id])
   stage     ConversationStage @default(NOVO_CONTATO)
   aiEnabled Boolean           @default(true)
+  interestServiceId String?
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 

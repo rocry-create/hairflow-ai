@@ -13,6 +13,7 @@ const NAV = [
     section: 'Atendimento',
     items: [
       { href: '/conversations', label: 'Conversas IA', icon: 'chat' },
+      { href: '/funnel', label: 'Funil', icon: 'grid' },
     ],
   },
   {

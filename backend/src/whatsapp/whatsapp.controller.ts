@@ -4,6 +4,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { EvolutionService } from './evolution.service';
 import { GeminiService } from './gemini.service';
+import { SchedulingService } from './scheduling.service';
 
 @Controller('whatsapp')
 export class WhatsappController {
@@ -12,6 +13,7 @@ export class WhatsappController {
     private evolution: EvolutionService,
     private gemini: GeminiService,
     private config: ConfigService,
+    private scheduling: SchedulingService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -171,11 +173,13 @@ export class WhatsappController {
         durationMinutes: s.durationMinutes,
       }));
 
-      const reply = await this.gemini.generateReply(
+      let reply = await this.gemini.generateReply(
         history.map((h) => ({ role: h.role, content: h.content })),
         client.name,
         services,
+        this.scheduling.promptBlock(),
       );
+      reply = await this.scheduling.handleReply(reply, client.id, conversation.id);
 
       await this.prisma.message.create({
         data: { conversationId: conversation.id, role: 'AI', content: reply },
