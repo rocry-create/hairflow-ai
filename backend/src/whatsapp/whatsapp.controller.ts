@@ -5,6 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { EvolutionService } from './evolution.service';
 import { GeminiService } from './gemini.service';
 import { SchedulingService } from './scheduling.service';
+import { ReminderService } from './reminder.service';
 
 @Controller('whatsapp')
 export class WhatsappController {
@@ -14,6 +15,7 @@ export class WhatsappController {
     private gemini: GeminiService,
     private config: ConfigService,
     private scheduling: SchedulingService,
+    private reminders: ReminderService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -151,6 +153,15 @@ export class WhatsappController {
       });
 
       if (!conversation.aiEnabled) {
+        return { received: true };
+      }
+
+      const reminderReply = await this.reminders.handleClientReply(client.id, conversation.id, text);
+      if (reminderReply) {
+        await this.prisma.message.create({
+          data: { conversationId: conversation.id, role: 'AI', content: reminderReply },
+        });
+        await this.evolution.sendMessage(phone, reminderReply);
         return { received: true };
       }
 
