@@ -95,6 +95,7 @@ model Appointment {
   service        Service           @relation(fields: [serviceId], references: [id])
   scheduledAt    DateTime
   reminderSentAt DateTime?
+  maintenanceReminderSentAt DateTime?
   durationMinutes Int
   status         AppointmentStatus @default(SCHEDULED)
   price          Decimal           @db.Decimal(10, 2)
