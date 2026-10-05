@@ -14,8 +14,8 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
-      router.push('/dashboard');
+      const data = await login(email, password);
+      router.push(data && data.user && data.user.role === 'PROFESSIONAL' ? '/minha-area' : '/dashboard');
     } catch (err) {
       setError(err.message);
     } finally {

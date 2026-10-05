@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ProfessionalAreaModule } from './professional-area/professional-area.module';
+import { ProfessionalRestrictionInterceptor } from './professional-area/restriction.interceptor';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
@@ -27,7 +30,11 @@ import { AppController } from './app.controller';
     WhatsappModule,
     CampaignsModule,
     FunnelModule,
+    ProfessionalAreaModule,
   ],
   controllers: [AppController],
+  providers: [
+    { provide: APP_INTERCEPTOR, useClass: ProfessionalRestrictionInterceptor },
+  ],
 })
 export class AppModule {}

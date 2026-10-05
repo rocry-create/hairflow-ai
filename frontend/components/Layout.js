@@ -23,9 +23,17 @@ const NAV = [
       { href: '/agenda', label: 'Agenda', icon: 'calendar' },
       { href: '/services', label: 'Serviços', icon: 'scissors' },
       { href: '/professionals', label: 'Profissionais', icon: 'team' },
+      { href: '/acessos', label: 'Acessos da equipe', icon: 'team' },
       { href: '/financeiro', label: 'Financeiro', icon: 'money' },
       { href: '/campaigns', label: 'Campanhas', icon: 'chat' },
     ],
+  },
+];
+
+const PRO_NAV = [
+  {
+    section: 'Meu trabalho',
+    items: [{ href: '/minha-area', label: 'Minha área', icon: 'calendar' }],
   },
 ];
 
@@ -87,6 +95,10 @@ export default function Layout({ children, title }) {
       router.replace('/login');
       return;
     }
+    if (u.role === 'PROFESSIONAL' && !router.pathname.startsWith('/minha-area')) {
+      router.replace('/minha-area');
+      return;
+    }
     setUserState(u);
   }, [router]);
 
@@ -98,6 +110,8 @@ export default function Layout({ children, title }) {
   if (!user) return null;
 
   const initials = (user.name || 'U').slice(0, 2).toUpperCase();
+  const nav = user.role === 'PROFESSIONAL' ? PRO_NAV : NAV;
+  const roleLabel = user.role === 'PROFESSIONAL' ? 'Profissional' : 'Administrador';
 
   return (
     <div className="app">
@@ -111,7 +125,7 @@ export default function Layout({ children, title }) {
           HairFlow AI
         </div>
 
-        {NAV.map((group) => (
+        {nav.map((group) => (
           <div key={group.section}>
             <div className="nav-section-label">{group.section}</div>
             {group.items.map((item) => {
@@ -134,7 +148,7 @@ export default function Layout({ children, title }) {
           <div className="avatar-pink">{initials}</div>
           <div>
             <div className="name">{user.name}</div>
-            <div className="role">Administrador</div>
+            <div className="role">{roleLabel}</div>
           </div>
         </div>
       </aside>
@@ -159,7 +173,7 @@ export default function Layout({ children, title }) {
               <div className="avatar-pink">{initials}</div>
               <div>
                 <div className="name">{user.name}</div>
-                <div className="role">Administrador</div>
+                <div className="role">{roleLabel}</div>
               </div>
             </div>
           </div>
