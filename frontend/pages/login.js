@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { login } from '../lib/api';
 
@@ -24,8 +25,12 @@ export default function Login() {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div className="login-page" style={{ display: 'flex', minHeight: '100vh' }}>
+      <Head>
+        <title>Entrar - HairFlow AI</title>
+      </Head>
       <div
+        className="login-hero"
         style={{
           flex: 1.1,
           background: 'linear-gradient(135deg, #127d4b 0%, #0d5c38 100%)',
@@ -70,23 +75,29 @@ export default function Login() {
         </div>
       </div>
 
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
-        <div style={{ width: 380 }}>
+      <div className="login-form-wrap" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
+        <div className="login-form-box" style={{ width: 380 }}>
           <h2 style={{ fontSize: 24, marginBottom: 6 }}>Entrar na sua conta</h2>
           <p style={{ color: 'var(--muted)', fontSize: 14, marginBottom: 28 }}>
             Acesse o painel do seu salao.
           </p>
 
-          {error && <div className="error-box">{error}</div>}
+          {error && (
+            <div className="error-box" role="alert">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit}>
             <div className="field">
-              <label>E-mail</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <label htmlFor="login-email">E-mail</label>
+              <input id="login-email" autoComplete="username" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div className="field">
-              <label>Senha</label>
+              <label htmlFor="login-senha">Senha</label>
               <input
+                id="login-senha"
+                autoComplete="current-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

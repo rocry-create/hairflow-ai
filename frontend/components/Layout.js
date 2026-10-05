@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router';
+import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { getUser, clearToken } from '../lib/api';
 
@@ -89,6 +90,27 @@ const ICONS = {
 export default function Layout({ children, title }) {
   const router = useRouter();
   const [user, setUserState] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const timer = setTimeout(() => {
+      const first = document.querySelector('#menu-lateral a');
+      if (first) first.focus();
+    }, 60);
+    function onKey(e) {
+      if (e.key === 'Escape') {
+        setMenuOpen(false);
+        const btn = document.querySelector('.menu-btn');
+        if (btn) btn.focus();
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [menuOpen]);
 
   useEffect(() => {
     const u = getUser();
@@ -116,7 +138,10 @@ export default function Layout({ children, title }) {
 
   return (
     <div className="app">
-      <aside className="sidebar">
+      <Head>
+        <title>{(title ? title + ' - ' : '') + 'HairFlow AI'}</title>
+      </Head>
+      <aside id="menu-lateral" className={'sidebar' + (menuOpen ? ' open' : '')} aria-label="Menu principal">
         <div className="brand">
           <div className="brand-mark">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
@@ -153,9 +178,22 @@ export default function Layout({ children, title }) {
           </div>
         </div>
       </aside>
+      {menuOpen && <div className="menu-overlay" onClick={() => setMenuOpen(false)} aria-hidden="true" />}
 
       <div className="main">
         <div className="topbar">
+          <button
+            type="button"
+            className="menu-btn"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-expanded={menuOpen}
+            aria-controls="menu-lateral"
+            aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
           <div className="search-box">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="11" cy="11" r="7" />
