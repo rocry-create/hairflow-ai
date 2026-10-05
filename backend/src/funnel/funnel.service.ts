@@ -28,6 +28,12 @@ export class FunnelService {
   constructor(private prisma: PrismaService) {}
 
   async board() {
+    try {
+      await this.syncStages();
+    } catch (e) {
+      // se a sincronizacao falhar, o funil abre normalmente
+    }
+
     const conversations = await this.prisma.conversation.findMany({
       include: {
         client: {
@@ -90,6 +96,34 @@ export class FunnelService {
         isMegaHairSpecialist: p.isMegaHairSpecialist,
       })),
     };
+  }
+
+  // Move o cartao sozinho quando um atendimento e marcado como Concluido
+  async syncStages() {
+    const since = new Date(Date.now() - 14 * 86400000);
+    const done = await this.prisma.appointment.findMany({
+      where: { status: 'COMPLETED', scheduledAt: { gte: since } },
+      include: { service: true },
+      orderBy: { scheduledAt: 'asc' },
+    });
+
+    const latest = new Map<string, (typeof done)[number]>();
+    for (const appt of done) latest.set(appt.clientId, appt);
+
+    for (const [clientId, appt] of Array.from(latest.entries())) {
+      const conversation = await this.prisma.conversation.findUnique({ where: { clientId } });
+      if (!conversation || conversation.autoStageAppointmentId === appt.id) continue;
+
+      const target = norm(appt.service.name).includes('avalia') ? 'COMPARECEU' : 'POS_VENDA';
+      const advance = STAGES.indexOf(conversation.stage) < STAGES.indexOf(target);
+
+      await this.prisma.conversation.update({
+        where: { id: conversation.id },
+        data: advance
+          ? { stage: target as any, autoStageAppointmentId: appt.id }
+          : { autoStageAppointmentId: appt.id },
+      });
+    }
   }
 
   async createCard(body: any) {
