@@ -25,6 +25,7 @@ const NAV = [
       { href: '/professionals', label: 'Profissionais', icon: 'team' },
       { href: '/acessos', label: 'Acessos da equipe', icon: 'team' },
       { href: '/financeiro', label: 'Financeiro', icon: 'money' },
+      { href: '/relatorios', label: 'Relatórios IA', icon: 'grid' },
       { href: '/campaigns', label: 'Campanhas', icon: 'chat' },
     ],
   },

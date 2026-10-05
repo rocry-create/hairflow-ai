@@ -14,6 +14,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { WhatsappModule } from './whatsapp/whatsapp.module';
 import { CampaignsModule } from './campaigns/campaigns.module';
 import { FunnelModule } from './funnel/funnel.module';
+import { ReportsModule } from './reports/reports.module';
 import { AppController } from './app.controller';
 
 @Module({
@@ -30,6 +31,7 @@ import { AppController } from './app.controller';
     WhatsappModule,
     CampaignsModule,
     FunnelModule,
+    ReportsModule,
     ProfessionalAreaModule,
   ],
   controllers: [AppController],
