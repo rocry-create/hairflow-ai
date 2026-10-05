@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import { apiFetch } from '../lib/api';
+import { PieChart, BarChart } from '../components/Charts';
 
 function formatMoney(value) {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
@@ -96,6 +97,45 @@ export default function Dashboard() {
               icon={ICONS.alert}
             />
           </div>
+
+          <section className="card" style={{ marginBottom: 20 }} aria-labelledby="h-graficos">
+            <h2 id="h-graficos" style={{ marginTop: 0, fontSize: 17 }}>
+              Gráficos
+            </h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 32 }}>
+              <PieChart
+                title="Faturamento por serviço, os 5 maiores"
+                items={summary.financeiro.servicosMaisVendidos
+                  .slice()
+                  .sort((a, b) => b.revenue - a.revenue)
+                  .slice(0, 5)
+                  .map((s) => ({ label: s.name, value: s.revenue }))}
+                format={formatMoney}
+              />
+              <PieChart
+                title="Situação dos agendamentos"
+                items={[
+                  { label: 'Concluídos', value: summary.comercial.concluidos },
+                  { label: 'Faltas', value: summary.comercial.faltas },
+                  {
+                    label: 'Agendados, confirmados ou cancelados',
+                    value: Math.max(
+                      0,
+                      summary.comercial.totalAgendamentos - summary.comercial.concluidos - summary.comercial.faltas,
+                    ),
+                  },
+                ]}
+              />
+              <BarChart
+                title="Faturamento por profissional"
+                items={summary.financeiro.profissionaisQueMaisFaturam.map((p) => ({
+                  label: p.name,
+                  value: p.revenue,
+                }))}
+                format={formatMoney}
+              />
+            </div>
+          </section>
 
           <div className="grid-2col">
             <div className="card">
