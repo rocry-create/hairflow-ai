@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
-import { getUser, clearToken } from '../lib/api';
+import { getUser, clearToken, apiFetch } from '../lib/api';
 
 const NAV = [
   {
@@ -14,6 +14,7 @@ const NAV = [
     section: 'Atendimento',
     items: [
       { href: '/conversations', label: 'Conversas IA', icon: 'chat' },
+      { href: '/whatsapp', label: 'WhatsApp', icon: 'phone' },
       { href: '/funnel', label: 'Funil', icon: 'grid' },
     ],
   },
@@ -30,16 +31,35 @@ const NAV = [
       { href: '/campaigns', label: 'Campanhas', icon: 'chat' },
     ],
   },
+  {
+    section: 'Ajuda',
+    items: [{ href: '/guia', label: 'Guia de uso', icon: 'book' }],
+  },
 ];
 
 const PRO_NAV = [
   {
     section: 'Meu trabalho',
-    items: [{ href: '/minha-area', label: 'Minha área', icon: 'calendar' }],
+    items: [
+      { href: '/minha-area', label: 'Minha área', icon: 'calendar' },
+      { href: '/minha-area/guia', label: 'Guia de uso', icon: 'book' },
+    ],
   },
 ];
 
 const ICONS = {
+  phone: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="7" y="2" width="10" height="20" rx="2" />
+      <path d="M11 18h2" />
+    </svg>
+  ),
+  book: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z" />
+      <path d="M4 19V5M9 7h6" />
+    </svg>
+  ),
   grid: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <rect x="3" y="3" width="7" height="7" rx="1" />
@@ -112,6 +132,27 @@ export default function Layout({ children, title }) {
     };
   }, [menuOpen]);
 
+  const [waDown, setWaDown] = useState(false);
+
+  useEffect(() => {
+    if (!user || user.role === 'PROFESSIONAL') return undefined;
+    let active = true;
+    async function check() {
+      try {
+        const s = await apiFetch('/whatsapp-instance');
+        if (active && s) setWaDown(s.state !== 'open');
+      } catch (e) {
+        // se a checagem falhar, nao mostra aviso falso
+      }
+    }
+    check();
+    const timer = setInterval(check, 60000);
+    return () => {
+      active = false;
+      clearInterval(timer);
+    };
+  }, [user]);
+
   useEffect(() => {
     const u = getUser();
     if (!u) {
@@ -155,7 +196,10 @@ export default function Layout({ children, title }) {
           <div key={group.section}>
             <div className="nav-section-label">{group.section}</div>
             {group.items.map((item) => {
-              const active = router.pathname.startsWith(item.href);
+              const active =
+                item.href === '/minha-area'
+                  ? router.pathname === '/minha-area' || router.pathname === '/minha-area/ficha'
+                  : router.pathname.startsWith(item.href);
               return (
                 <a
                   key={item.href}
@@ -219,6 +263,17 @@ export default function Layout({ children, title }) {
         </div>
 
         <div className="content">
+          {waDown && router.pathname !== '/whatsapp' && (
+            <div
+              role="alert"
+              style={{ background: '#fef2f2', border: '1px solid #dc2626', color: '#b91c1c', padding: '10px 14px', borderRadius: 8, marginBottom: 16, fontSize: 14 }}
+            >
+              O WhatsApp do salão não está conectado, e a IA não consegue responder.{' '}
+              <a href="/whatsapp" style={{ textDecoration: 'underline', fontWeight: 600 }}>
+                Abrir a tela do WhatsApp
+              </a>
+            </div>
+          )}
           <h1 className="page-title">{title}</h1>
           {children}
         </div>
