@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-const BASE_PROMPT = `Voce e a recepcionista virtual de um salao de beleza premium chamado HairFlow.
+const BASE_PROMPT = `Voce e a recepcionista virtual de um salao de beleza premium.
 Seu trabalho e atender clientes pelo WhatsApp com simpatia e profissionalismo.
 
 Suas funcoes:

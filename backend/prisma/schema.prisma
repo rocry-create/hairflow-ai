@@ -211,3 +211,14 @@ model CampaignRecipient {
   @@index([campaignId, status])
   @@map("campaign_recipients")
 }
+
+model SalonSettings {
+  id        String   @id @default("main")
+  salonName String   @default("HairFlow")
+  openTime  String   @default("09:00")
+  closeTime String   @default("19:00")
+  weekdays  String   @default("1,2,3,4,5,6")
+  updatedAt DateTime @updatedAt
+
+  @@map("salon_settings")
+}

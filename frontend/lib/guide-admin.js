@@ -38,6 +38,7 @@ export const adminGuide = {
             'Financeiro: faturamento, comissões e lucro por período.',
             'Relatórios IA: números do atendimento e resumo escrito pela IA.',
             'Campanhas: mensagens em massa para clientes.',
+            'Configurações: nome do salão, horário de funcionamento e senha.',
             'Guia de uso: esta página.',
           ],
         },
@@ -108,13 +109,13 @@ export const adminGuide = {
         {
           ul: [
             'Se o horário estiver ocupado, a IA oferece até 3 opções perto dele.',
-            'O salão atende de segunda a sábado, das 9h às 19h. A IA não marca com menos de 1 hora de antecedência nem com mais de 60 dias.',
+            'A IA só marca dentro do horário de funcionamento, definido em Configurações. Ela não marca com menos de 1 hora de antecedência nem com mais de 60 dias.',
             'Para serviços com avaliação, a IA marca a avaliação, e não o serviço final.',
             'Mega hair só é marcado com mega hairistas.',
             'Quando a IA marca uma avaliação, o cartão da cliente vai para Avaliação marcada no Funil.',
           ],
         },
-        { note: 'Os horários de funcionamento ficam dentro do sistema. Para mudar, fale com quem cuida do sistema.' },
+        { note: 'Os horários de funcionamento ficam em Configurações, na aba Empresa. Se mudar o horário, a IA passa a usar o novo na hora.' },
       ],
     },
     {
@@ -324,6 +325,33 @@ export const adminGuide = {
       ],
     },
     {
+      id: 'configuracoes',
+      h: 'Configurações',
+      blocks: [
+        { p: 'Em Configurações, no menu Sistema, ficam três abas.' },
+        { h3: 'Perfil' },
+        { p: 'Mostra seu nome e e-mail. Você pode trocar o nome. O e-mail não pode ser trocado.' },
+        { h3: 'Empresa' },
+        {
+          ul: [
+            'Escreva o nome do salão. A IA usa esse nome ao falar com as clientes.',
+            'Escolha a hora em que o salão abre e a hora em que fecha.',
+            'Marque os dias em que o salão atende.',
+            'Ative Salvar. A IA passa a marcar horários só dentro desse funcionamento.',
+          ],
+        },
+        { h3: 'Senha' },
+        {
+          ol: [
+            'Escreva a senha atual.',
+            'Escreva a senha nova, com pelo menos 8 caracteres, e repita.',
+            'Ative Trocar senha.',
+          ],
+        },
+        { note: 'Depois de trocar a senha, a senha antiga deixa de valer. Anote a nova em um lugar seguro.' },
+      ],
+    },
+    {
       id: 'problemas',
       h: 'Problemas comuns',
       blocks: [
@@ -342,7 +370,7 @@ export const adminGuide = {
             'Confira se o serviço e uma profissional estão cadastrados.',
             'Para serviços com avaliação, confira se existe um serviço com Avaliação no nome.',
             'Para mega hair, confira se há uma mega hairista cadastrada.',
-            'A IA só marca de segunda a sábado, das 9h às 19h.',
+            'A IA só marca dentro do horário de funcionamento, definido em Configurações na aba Empresa.',
           ],
         },
         { h3: 'Não chegou lembrete ou aviso de manutenção' },
@@ -355,7 +383,7 @@ export const adminGuide = {
         { h3: 'A tela está antiga depois de uma atualização' },
         { p: 'Feche e abra o navegador, ou aperte as teclas Ctrl e F5 juntas.' },
         { h3: 'Trocar a senha da administradora' },
-        { p: 'Fale com quem cuida do sistema.' },
+        { p: 'Entre em Configurações, na aba Senha, e escreva a senha atual e a nova. Se você esqueceu a senha atual, fale com quem cuida do sistema.' },
       ],
     },
   ],

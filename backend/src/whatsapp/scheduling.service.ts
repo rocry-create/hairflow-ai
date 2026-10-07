@@ -1,11 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Service } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { SettingsService } from '../settings/settings.service';
 
 // ===== AJUSTE AQUI O FUNCIONAMENTO DO SALAO =====
-const OPEN_HOUR = 9;
-const CLOSE_HOUR = 19;
-const OPEN_WEEKDAYS = [1, 2, 3, 4, 5, 6]; // 0=domingo, 1=segunda ... 6=sabado
+// (a abertura vem de Configuracoes)
+// (o fechamento vem de Configuracoes)
+// (os dias de funcionamento vem de Configuracoes)
 const SLOT_MINUTES = 30;
 const MIN_NOTICE_MINUTES = 60;
 const MAX_DAYS_AHEAD = 60;
@@ -64,17 +65,22 @@ type Busy = { professionalId: string; scheduledAt: Date; durationMinutes: number
 export class SchedulingService {
   private readonly logger = new Logger(SchedulingService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private settings: SettingsService,
+  ) {}
 
   // Texto extra que explica para a IA como agendar
   promptBlock(): string {
     const now = brParts(new Date());
-    const days = OPEN_WEEKDAYS.map((d) => WEEKDAYS[d]).join(', ');
+    const cfg = this.settings.get();
+    const days = cfg.weekdays.map((d) => WEEKDAYS[d]).join(', ');
     return (
+      '\n\nO nome do salao e ' + cfg.salonName + '.' +
       '\n\nAGENDAMENTO:\n' +
       '- Hoje e ' + WEEKDAYS[now.wd] + ', ' + pad(now.d) + '/' + pad(now.m) + '/' + now.y +
       ', e agora sao ' + pad(now.hh) + ':' + pad(now.mm) + ' (horario de Brasilia).\n' +
-      '- O salao atende ' + days + ', das ' + OPEN_HOUR + 'h as ' + CLOSE_HOUR + 'h.\n' +
+      '- O salao atende ' + days + ', das ' + cfg.openTime + ' as ' + cfg.closeTime + '.\n' +
       '- Voce mesma pode agendar. Para isso precisa ter: o servico (nome exatamente como esta na lista), o dia e o horario que a cliente quer. Pergunte o que faltar, uma coisa de cada vez.\n' +
       '- Servicos que exigem avaliacao: agende a Avaliacao correspondente (se existir na lista), nunca o servico final.\n' +
       '- Quando a cliente confirmar claramente o dia e o horario, termine sua resposta com esta linha, neste formato exato, e nada depois dela:\n' +
@@ -131,6 +137,7 @@ export class SchedulingService {
   }
 
   private async nextFreeSlots(ids: string[], minutes: number, after: Date, count: number) {
+    const cfg = this.settings.get();
     const earliest = Date.now() + MIN_NOTICE_MINUTES * 60000;
     const busy = await this.loadBusy(ids, after, new Date(after.getTime() + 15 * 86400000));
     const p = brParts(after);
@@ -139,11 +146,11 @@ export class SchedulingService {
     for (let i = 0; i <= 14 && out.length < count; i++) {
       const dayRef = fromBr(p.y, p.m, p.d + i, 12, 0);
       const dp = brParts(dayRef);
-      if (!OPEN_WEEKDAYS.includes(dp.wd)) continue;
+      if (!cfg.weekdays.includes(dp.wd)) continue;
 
       for (
-        let min = OPEN_HOUR * 60;
-        min + minutes <= CLOSE_HOUR * 60 && out.length < count;
+        let min = cfg.openMinutes;
+        min + minutes <= cfg.closeMinutes && out.length < count;
         min += SLOT_MINUTES
       ) {
         const slot = fromBr(dp.y, dp.m, dp.d, Math.floor(min / 60), min % 60);
@@ -203,9 +210,9 @@ export class SchedulingService {
     const validTime =
       when.getTime() >= now + MIN_NOTICE_MINUTES * 60000 &&
       when.getTime() <= now + MAX_DAYS_AHEAD * 86400000 &&
-      OPEN_WEEKDAYS.includes(p.wd) &&
-      startMin >= OPEN_HOUR * 60 &&
-      startMin + minutes <= CLOSE_HOUR * 60;
+      this.settings.get().weekdays.includes(p.wd) &&
+      startMin >= this.settings.get().openMinutes &&
+      startMin + minutes <= this.settings.get().closeMinutes;
 
     if (validTime) {
       const existing = await this.prisma.appointment.findFirst({
