@@ -30,6 +30,7 @@ export default function ConversationsPage() {
   const [sending, setSending] = useState(false);
   const threadRef = useRef(null);
   const [quickReplies, setQuickReplies] = useState([]);
+  const [quickChoice, setQuickChoice] = useState('');
 
   useEffect(() => {
     apiFetch('/quick-replies').then((r) => setQuickReplies(r || [])).catch(() => {});
@@ -148,6 +149,36 @@ export default function ConversationsPage() {
     setReplyText(q.text.split('{nome}').join(first || 'cliente'));
   }
 
+  function quickText() {
+    const q = quickReplies.find((x) => x.id === quickChoice);
+    if (!q) return '';
+    const first = ((detail && detail.client && detail.client.name) || '').trim().split(' ')[0];
+    return q.text.split('{nome}').join(first || 'cliente');
+  }
+
+  function fillQuick() {
+    const text = quickText();
+    if (text) setReplyText(text);
+  }
+
+  async function sendQuick() {
+    const text = quickText();
+    if (!text || !detail) return;
+    setSending(true);
+    try {
+      await apiFetch('/whatsapp/conversations/' + detail.id + '/reply', {
+        method: 'POST',
+        body: JSON.stringify({ text }),
+      });
+      setQuickChoice('');
+      loadDetail(detail.id);
+    } catch (err) {
+      // se falhar, a escolha continua para tentar de novo
+    } finally {
+      setSending(false);
+    }
+  }
+
   async function sendReply() {
     if (!replyText.trim() || !detail) return;
     setSending(true);
@@ -264,9 +295,9 @@ export default function ConversationsPage() {
                   </label>
                   <select
                     id="conv-quick"
-                    value=""
-                    onChange={(e) => applyQuick(e.target.value)}
-                    style={{ width: '100%' }}
+                    value={quickChoice}
+                    onChange={(e) => setQuickChoice(e.target.value)}
+                    style={{ width: '100%', marginBottom: 8 }}
                   >
                     <option value="">Escolha uma resposta pronta...</option>
                     {quickReplies.map((q) => (
@@ -275,6 +306,14 @@ export default function ConversationsPage() {
                       </option>
                     ))}
                   </select>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <button className="btn-primary" onClick={sendQuick} disabled={!quickChoice || sending}>
+                      Enviar resposta pronta
+                    </button>
+                    <button className="btn-secondary" onClick={fillQuick} disabled={!quickChoice}>
+                      Colocar na caixa
+                    </button>
+                  </div>
                 </div>
               )}
 
