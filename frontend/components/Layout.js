@@ -28,7 +28,7 @@ const NAV = [
       { href: '/acessos', label: 'Acessos da equipe', icon: 'team' },
       { href: '/financeiro', label: 'Financeiro', icon: 'money' },
       { href: '/relatorios', label: 'Relatórios IA', icon: 'grid' },
-      { href: '/campaigns', label: 'Campanhas', icon: 'chat' },
+      { href: '/campaigns', label: 'Marketing', icon: 'chat' },
     ],
   },
   {
@@ -198,7 +198,7 @@ export default function Layout({ children, title }) {
               <path d="M12 2a5 5 0 0 0-5 5c0 2 1 3.5 2 5-3 1-5 4-5 8h16c0-4-2-7-5-8 1-1.5 2-3 2-5a5 5 0 0 0-5-5z" />
             </svg>
           </div>
-          HairFlow AI
+          Melliun
         </div>
 
         {nav.map((group) => (
@@ -247,13 +247,6 @@ export default function Layout({ children, title }) {
               <path d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <div className="search-box">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="7" />
-              <path d="m21 21-4-4" />
-            </svg>
-            Buscar clientes, agendamentos...
-          </div>
           <div className="topbar-right">
             <button
               type="button"
