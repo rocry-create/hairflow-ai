@@ -1,4 +1,4 @@
-const linkStyle = { color: '#127d4b', textDecoration: 'underline' };
+const linkStyle = { color: 'var(--link)', textDecoration: 'underline' };
 const listStyle = { margin: '0 0 14px', paddingLeft: 24, lineHeight: 1.7, fontSize: 15 };
 const textStyle = { margin: '0 0 14px', lineHeight: 1.7, fontSize: 15 };
 
@@ -29,7 +29,16 @@ function Block({ b }) {
   }
   if (b.note) {
     return (
-      <p style={{ ...textStyle, background: '#e3f5ec', borderLeft: '4px solid #127d4b', padding: '10px 14px', borderRadius: 6 }}>
+      <p
+        style={{
+          ...textStyle,
+          background: 'var(--green-soft)',
+          borderLeft: '4px solid var(--green)',
+          color: 'var(--text)',
+          padding: '10px 14px',
+          borderRadius: 6,
+        }}
+      >
         <strong>Atenção: </strong>
         {b.note}
       </p>

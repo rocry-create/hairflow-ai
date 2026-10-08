@@ -38,7 +38,7 @@ export const adminGuide = {
             'Financeiro: faturamento, comissões e lucro por período.',
             'Relatórios IA: números do atendimento e resumo escrito pela IA.',
             'Campanhas: mensagens em massa para clientes.',
-            'Configurações: nome do salão, horário de funcionamento e senha.',
+            'Configurações: nome do salão, horário de funcionamento, senha e aparência.',
             'Guia de uso: esta página.',
           ],
         },
@@ -328,7 +328,7 @@ export const adminGuide = {
       id: 'configuracoes',
       h: 'Configurações',
       blocks: [
-        { p: 'Em Configurações, no menu Sistema, ficam três abas.' },
+        { p: 'Em Configurações, no menu Sistema, ficam quatro abas.' },
         { h3: 'Perfil' },
         { p: 'Mostra seu nome e e-mail. Você pode trocar o nome. O e-mail não pode ser trocado.' },
         { h3: 'Empresa' },
@@ -349,6 +349,8 @@ export const adminGuide = {
           ],
         },
         { note: 'Depois de trocar a senha, a senha antiga deixa de valer. Anote a nova em um lugar seguro.' },
+        { h3: 'Aparência' },
+        { p: 'Escolha tema claro, tema escuro ou seguir o sistema. A mudança vale na hora e só neste navegador. Também dá para alternar pelo botão com a lua, no alto da tela.' },
       ],
     },
     {

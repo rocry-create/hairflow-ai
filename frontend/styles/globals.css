@@ -412,3 +412,48 @@ select:focus-visible {
   .login-form-wrap { align-items: flex-start !important; padding: 28px 16px; }
   .login-form-box { width: 100% !important; max-width: 420px; }
 }
+
+/* ===== TEMA-HAIRFLOW ===== */
+:root {
+  --ok: #15803d;
+  --bad: #b91c1c;
+  --warn: #b45309;
+  --link: #127d4b;
+  --bg-soft: #f9fafb;
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #12151a;
+  --surface: #1b1f27;
+  --border: #2c323c;
+  --text: #e8eaed;
+  --muted: #9aa3af;
+  --green-soft: #12372a;
+  --danger: #f87171;
+  --ok: #4ade80;
+  --bad: #f87171;
+  --warn: #fbbf24;
+  --link: #4ade80;
+  --bg-soft: #171b22;
+}
+
+html[data-theme='dark'] .error-box { background: #3a1517; }
+html[data-theme='dark'] .sidebar { border-right: 1px solid var(--border); }
+html[data-theme='dark'] .switch { background: #4b5563; }
+html[data-theme='dark'] .switch.on { background: var(--green); }
+
+/* Cores escritas direto nas telas: no tema escuro, trocam pelas cores do tema */
+html[data-theme='dark'] [style*='background: rgb(255, 255, 255)']:not([style*='color:']) { background: var(--surface) !important; }
+html[data-theme='dark'] [style*='background: rgb(249, 250, 251)']:not([style*='color:']) { background: var(--bg-soft) !important; }
+html[data-theme='dark'] [style*='background: rgb(229, 231, 235)']:not([style*='color:']) { background: var(--border) !important; }
+html[data-theme='dark'] [style*='background: rgb(220, 252, 231)']:not([style*='color:']) { background: var(--green-soft) !important; }
+html[data-theme='dark'] [style*='solid rgb(229, 231, 235)'] { border-color: var(--border) !important; }
+html[data-theme='dark'] [style*='background: rgb(255, 255, 255)'][style*='color: rgb(17, 17, 17)'] { background: var(--surface) !important; color: var(--text) !important; }
+html[data-theme='dark'] [style*='background: rgb(255, 255, 255)'][style*='color: rgb(185, 28, 28)'] { background: var(--surface) !important; color: var(--bad) !important; }
+html[data-theme='dark'] [style*='color: rgb(17, 17, 17)']:not([style*='background']) { color: var(--text) !important; }
+html[data-theme='dark'] [style*='color: rgb(107, 114, 128)']:not([style*='background']) { color: var(--muted) !important; }
+html[data-theme='dark'] [style*='color: rgb(138, 133, 120)'] { color: var(--muted) !important; }
+html[data-theme='dark'] [style*='color: rgb(21, 128, 61)']:not([style*='background']) { color: var(--ok) !important; }
+html[data-theme='dark'] [style*='color: rgb(185, 28, 28)']:not([style*='background']) { color: var(--bad) !important; }
+html[data-theme='dark'] [style*='color: rgb(180, 83, 9)']:not([style*='background']) { color: var(--warn) !important; }

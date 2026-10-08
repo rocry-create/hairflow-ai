@@ -6,6 +6,7 @@ const TABS = [
   ['perfil', 'Perfil'],
   ['empresa', 'Empresa'],
   ['senha', 'Senha'],
+  ['aparencia', 'Aparência'],
 ];
 
 const DAYS = [
@@ -286,6 +287,61 @@ function PasswordTab() {
   );
 }
 
+function AppearanceTab() {
+  const [theme, setThemeState] = useState('light');
+  const [message, setMessage] = useState('');
+  const headingRef = useRef(null);
+
+  useEffect(() => {
+    if (headingRef.current) headingRef.current.focus();
+    setThemeState(window.localStorage.getItem('hairflow_theme') || 'light');
+  }, []);
+
+  function choose(value) {
+    setThemeState(value);
+    window.localStorage.setItem('hairflow_theme', value);
+    const dark = value === 'dark' || (value === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    setMessage(
+      value === 'dark' ? 'Tema escuro ativado.' : value === 'light' ? 'Tema claro ativado.' : 'O tema vai seguir o seu aparelho.'
+    );
+  }
+
+  const options = [
+    ['light', 'Claro'],
+    ['dark', 'Escuro'],
+    ['auto', 'Seguir o sistema, claro ou escuro conforme o aparelho'],
+  ];
+
+  return (
+    <section aria-labelledby="h-aparencia" className="card" style={panelStyle}>
+      <h2 id="h-aparencia" ref={headingRef} tabIndex={-1} style={{ marginTop: 0, fontSize: 18 }}>
+        Aparência
+      </h2>
+      <Feedback message={message} error="" />
+      <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
+        <legend style={{ fontSize: 13, fontWeight: 500, marginBottom: 8, padding: 0 }}>Tema</legend>
+        {options.map(([value, label]) => (
+          <label key={value} htmlFor={'cf-tema-' + value} style={checkLabel}>
+            <input
+              id={'cf-tema-' + value}
+              type="radio"
+              name="tema"
+              style={checkInput}
+              checked={theme === value}
+              onChange={() => choose(value)}
+            />
+            {label}
+          </label>
+        ))}
+      </fieldset>
+      <p className="page-sub" style={{ margin: '8px 0 0', fontSize: 13 }}>
+        A escolha vale só neste navegador. Também dá para alternar pelo botão com a lua, no alto da tela.
+      </p>
+    </section>
+  );
+}
+
 export default function Configuracoes() {
   const [tab, setTab] = useState('perfil');
 
@@ -310,6 +366,7 @@ export default function Configuracoes() {
       {tab === 'perfil' && <ProfileTab />}
       {tab === 'empresa' && <CompanyTab />}
       {tab === 'senha' && <PasswordTab />}
+      {tab === 'aparencia' && <AppearanceTab />}
     </Layout>
   );
 }

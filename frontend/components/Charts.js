@@ -1,4 +1,4 @@
-const COLORS = ['#15803d', '#111111', '#4ade80', '#6b7280', '#bbf7d0', '#9ca3af'];
+const COLORS = ['#15803d', 'var(--text)', '#4ade80', '#6b7280', '#bbf7d0', '#9ca3af'];
 
 function percent(value, total) {
   return total > 0 ? Math.round((value / total) * 1000) / 10 : 0;
@@ -34,15 +34,18 @@ export function PieChart({ title, items, format }) {
         <div style={{ display: 'flex', gap: 18, alignItems: 'center', flexWrap: 'wrap' }}>
           <svg aria-hidden="true" viewBox="0 0 200 200" width="170" height="170" style={{ flexShrink: 0 }}>
             {slices.length === 1 ? (
-              <circle cx="100" cy="100" r="95" fill={slices[0].color} stroke="#ffffff" strokeWidth="2" />
+              <circle
+                cx="100"
+                cy="100"
+                r="95"
+                style={{ fill: slices[0].color, stroke: 'var(--surface)', strokeWidth: 2 }}
+              />
             ) : (
               slices.map((s) => (
                 <path
                   key={s.label}
                   d={slicePath(100, 100, 95, s.start, s.end)}
-                  fill={s.color}
-                  stroke="#ffffff"
-                  strokeWidth="2"
+                  style={{ fill: s.color, stroke: 'var(--surface)', strokeWidth: 2 }}
                 />
               ))
             )}
@@ -85,7 +88,7 @@ export function BarChart({ title, items, format }) {
               </div>
               <div
                 aria-hidden="true"
-                style={{ background: '#e5e7eb', height: 14, borderRadius: 7, overflow: 'hidden' }}
+                style={{ background: 'var(--border)', height: 14, borderRadius: 7, overflow: 'hidden' }}
               >
                 <div
                   style={{
