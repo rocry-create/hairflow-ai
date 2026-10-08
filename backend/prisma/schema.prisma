@@ -222,3 +222,15 @@ model SalonSettings {
 
   @@map("salon_settings")
 }
+
+model QuickReply {
+  id        String   @id @default(uuid())
+  shortcut  String   @unique
+  title     String
+  category  String   @default("Atendimento")
+  text      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("quick_replies")
+}

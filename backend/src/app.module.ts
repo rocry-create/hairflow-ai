@@ -16,6 +16,7 @@ import { CampaignsModule } from './campaigns/campaigns.module';
 import { FunnelModule } from './funnel/funnel.module';
 import { ReportsModule } from './reports/reports.module';
 import { SettingsModule } from './settings/settings.module';
+import { QuickRepliesModule } from './quick-replies/quick-replies.module';
 import { AppController } from './app.controller';
 
 @Module({
@@ -35,6 +36,7 @@ import { AppController } from './app.controller';
     ReportsModule,
     SettingsModule,
     ProfessionalAreaModule,
+    QuickRepliesModule,
   ],
   controllers: [AppController],
   providers: [

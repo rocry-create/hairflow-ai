@@ -29,6 +29,11 @@ export default function ConversationsPage() {
   const [replyText, setReplyText] = useState('');
   const [sending, setSending] = useState(false);
   const threadRef = useRef(null);
+  const [quickReplies, setQuickReplies] = useState([]);
+
+  useEffect(() => {
+    apiFetch('/quick-replies').then((r) => setQuickReplies(r || [])).catch(() => {});
+  }, []);
 
   async function loadConversations() {
     try {
@@ -134,6 +139,13 @@ export default function ConversationsPage() {
     } catch (err) {
       // se falhar, conversa continua visivel
     }
+  }
+
+  function applyQuick(id) {
+    const q = quickReplies.find((x) => x.id === id);
+    if (!q) return;
+    const first = ((detail && detail.client && detail.client.name) || '').trim().split(' ')[0];
+    setReplyText(q.text.split('{nome}').join(first || 'cliente'));
   }
 
   async function sendReply() {
@@ -244,6 +256,27 @@ export default function ConversationsPage() {
                   </div>
                 ))}
               </div>
+
+              {quickReplies.length > 0 && (
+                <div style={{ marginBottom: 8 }}>
+                  <label htmlFor="conv-quick" style={{ display: 'block', fontSize: 13, marginBottom: 4 }}>
+                    Resposta pronta
+                  </label>
+                  <select
+                    id="conv-quick"
+                    value=""
+                    onChange={(e) => applyQuick(e.target.value)}
+                    style={{ width: '100%' }}
+                  >
+                    <option value="">Escolha uma resposta pronta...</option>
+                    {quickReplies.map((q) => (
+                      <option key={q.id} value={q.id}>
+                        {q.title + ' (/' + q.shortcut + ')'}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="reply-row">
                 <textarea

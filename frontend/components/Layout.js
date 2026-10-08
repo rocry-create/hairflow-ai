@@ -14,6 +14,7 @@ const NAV = [
     section: 'Atendimento',
     items: [
       { href: '/conversations', label: 'Conversas IA', icon: 'chat' },
+      { href: '/respostas-rapidas', label: 'Respostas rápidas', icon: 'chat' },
       { href: '/whatsapp', label: 'WhatsApp', icon: 'phone' },
       { href: '/funnel', label: 'Funil', icon: 'grid' },
     ],
