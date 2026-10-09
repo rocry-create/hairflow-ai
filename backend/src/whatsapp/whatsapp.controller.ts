@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
@@ -6,6 +6,7 @@ import { EvolutionService } from './evolution.service';
 import { GeminiService } from './gemini.service';
 import { SchedulingService } from './scheduling.service';
 import { ReminderService } from './reminder.service';
+import { AppointmentsService } from '../appointments/appointments.service';
 
 @Controller('whatsapp')
 export class WhatsappController {
@@ -16,6 +17,7 @@ export class WhatsappController {
     private config: ConfigService,
     private scheduling: SchedulingService,
     private reminders: ReminderService,
+    private appointments: AppointmentsService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -106,6 +108,87 @@ export class WhatsappController {
     });
     await this.evolution.sendMessage(conversation.client.phone, body.text);
     return { sent: true };
+  }
+
+  private fillText(text: string, name: string, when: Date) {
+    const tz = 'America/Sao_Paulo';
+    const data = when.toLocaleDateString('pt-BR', { timeZone: tz, weekday: 'long', day: '2-digit', month: '2-digit' });
+    const hora = when.toLocaleTimeString('pt-BR', { timeZone: tz, hour: '2-digit', minute: '2-digit' });
+    return text.split('{nome}').join(name).split('{data}').join(data).split('{hora}').join(hora);
+  }
+
+  private async sendToClient(conversationId: string, phone: string, text: string) {
+    try {
+      await this.prisma.message.create({ data: { conversationId, role: 'HUMAN', content: text } });
+      await this.evolution.sendMessage(phone, text);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('conversations/:id/appointments')
+  async clientAppointments(@Param('id') id: string) {
+    const conversation = await this.prisma.conversation.findUnique({ where: { id }, include: { client: true } });
+    if (!conversation) throw new BadRequestException('Conversa nao encontrada');
+    return this.prisma.appointment.findMany({
+      where: {
+        clientId: conversation.client.id,
+        status: { in: ['SCHEDULED', 'CONFIRMED'] },
+        scheduledAt: { gte: new Date() },
+      },
+      include: { service: true, professional: true },
+      orderBy: { scheduledAt: 'asc' },
+    });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('conversations/:id/schedule')
+  async scheduleAndReply(
+    @Param('id') id: string,
+    @Body() body: { serviceId: string; professionalId: string; scheduledAt: string; text: string },
+  ) {
+    const conversation = await this.prisma.conversation.findUnique({ where: { id }, include: { client: true } });
+    if (!conversation) throw new BadRequestException('Conversa nao encontrada');
+    if (!body || !body.serviceId || !body.professionalId || !body.scheduledAt || !body.text) {
+      throw new BadRequestException('Informe servico, profissional, dia, hora e texto');
+    }
+    const when = new Date(body.scheduledAt);
+    if (Number.isNaN(when.getTime())) throw new BadRequestException('Data ou hora invalida');
+    if (when.getTime() < Date.now() - 60000) throw new BadRequestException('Esse horario ja passou');
+
+    const appointment = await this.appointments.create({
+      clientId: conversation.client.id,
+      professionalId: body.professionalId,
+      serviceId: body.serviceId,
+      scheduledAt: when.toISOString(),
+      notes: 'Marcado pela resposta pronta',
+    } as any);
+
+    const first = (conversation.client.name || '').trim().split(' ')[0] || 'cliente';
+    const text = this.fillText(body.text, first, when);
+    const sent = await this.sendToClient(id, conversation.client.phone, text);
+    return { scheduled: true, sent, appointmentId: appointment.id };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('conversations/:id/cancel')
+  async cancelAndReply(@Param('id') id: string, @Body() body: { appointmentId: string; text: string }) {
+    const conversation = await this.prisma.conversation.findUnique({ where: { id }, include: { client: true } });
+    if (!conversation) throw new BadRequestException('Conversa nao encontrada');
+    if (!body || !body.appointmentId || !body.text) throw new BadRequestException('Escolha o horario e informe o texto');
+
+    const appt = await this.prisma.appointment.findUnique({ where: { id: body.appointmentId } });
+    if (!appt || appt.clientId !== conversation.client.id) throw new BadRequestException('Horario nao encontrado para esta cliente');
+    if (appt.status === 'CANCELLED') throw new BadRequestException('Este horario ja esta cancelado');
+
+    await this.prisma.appointment.update({ where: { id: appt.id }, data: { status: 'CANCELLED' } });
+
+    const first = (conversation.client.name || '').trim().split(' ')[0] || 'cliente';
+    const text = this.fillText(body.text, first, appt.scheduledAt);
+    const sent = await this.sendToClient(id, conversation.client.phone, text);
+    return { cancelled: true, sent };
   }
 
   @Post('webhook')
