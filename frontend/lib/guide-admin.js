@@ -129,6 +129,17 @@ export const adminGuide = {
             'Onde o texto tiver {nome}, o sistema coloca o primeiro nome da cliente.',
           ],
         },
+        { h3: 'Marcar e desmarcar horários pela resposta pronta' },
+        {
+          ul: [
+            'Confirmar horário e Remarcar horário: aperte Enviar, escolha a cliente e preencha Serviço, Profissional, Dia e Hora. O botão vira Enviar e agendar.',
+            'O sistema coloca o horário na Agenda e só depois envia a mensagem, já com o dia e a hora. Se o horário estiver ocupado, ou for mega hair com profissional que não faz esse serviço, aparece um aviso e nada é enviado.',
+            'Cancelar horário: aperte Enviar, escolha a cliente e o horário marcado dela. O botão vira Enviar e desmarcar. O horário fica como cancelado na Agenda e a cliente recebe o aviso.',
+            'Remarcar só marca o horário novo. Para desmarcar o antigo, envie também a resposta Cancelar horário.',
+            'Não troque os atalhos confirmar, remarcar e cancelar, porque é por eles que o sistema sabe quando agendar ou desmarcar.',
+            'Se aparecer o aviso de que a mensagem não foi enviada, o horário já foi alterado na Agenda. Envie a mensagem à mão pela tela de Conversas.',
+          ],
+        },
         { p: 'Atenção: o botão Enviar resposta pronta manda a mensagem de verdade pelo WhatsApp. Se não tiver certeza, use Colocar na caixa e confira o texto antes de enviar.' },
       ],
     },
