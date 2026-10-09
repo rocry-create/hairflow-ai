@@ -22,6 +22,13 @@ const tagStyle = {
   fontSize: 12,
 };
 
+function modeOf(item) {
+  if (!item) return 'text';
+  if (item.shortcut === 'confirmar' || item.shortcut === 'remarcar') return 'schedule';
+  if (item.shortcut === 'cancelar') return 'cancel';
+  return 'text';
+}
+
 export default function RespostasRapidas() {
   const [items, setItems] = useState(null);
   const [form, setForm] = useState(null);
@@ -36,6 +43,14 @@ export default function RespostasRapidas() {
   const [convId, setConvId] = useState('');
   const [sending, setSending] = useState(false);
   const sendRef = useRef(null);
+  const [services, setServices] = useState([]);
+  const [professionals, setProfessionals] = useState([]);
+  const [serviceId, setServiceId] = useState('');
+  const [professionalId, setProfessionalId] = useState('');
+  const [day, setDay] = useState('');
+  const [time, setTime] = useState('');
+  const [appts, setAppts] = useState([]);
+  const [apptId, setApptId] = useState('');
 
   const load = useCallback(async () => {
     try {
@@ -126,6 +141,47 @@ export default function RespostasRapidas() {
     if (sendItem && sendRef.current) sendRef.current.focus();
   }, [sendItem]);
 
+  function canSend() {
+    if (!convId) return false;
+    const m = modeOf(sendItem);
+    if (m === 'schedule') return !!(serviceId && professionalId && day && time);
+    if (m === 'cancel') return !!apptId;
+    return true;
+  }
+
+  function apptLabel(a) {
+    const when = new Date(a.scheduledAt).toLocaleString('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      weekday: 'short',
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    return when + ' - ' + ((a.service && a.service.name) || '') + ' - ' + ((a.professional && a.professional.name) || '');
+  }
+
+  useEffect(() => {
+    setServiceId('');
+    setProfessionalId('');
+    setDay('');
+    setTime('');
+    if (modeOf(sendItem) === 'schedule') {
+      apiFetch('/services').then((r) => setServices(r || [])).catch(() => {});
+      apiFetch('/professionals').then((r) => setProfessionals(r || [])).catch(() => {});
+    }
+  }, [sendItem]);
+
+  useEffect(() => {
+    setApptId('');
+    setAppts([]);
+    if (modeOf(sendItem) === 'cancel' && convId) {
+      apiFetch('/whatsapp/conversations/' + convId + '/appointments')
+        .then((r) => setAppts(r || []))
+        .catch((e) => setError(e.message));
+    }
+  }, [sendItem, convId]);
+
   async function openSend(item) {
     setError('');
     setMessage('');
@@ -145,12 +201,55 @@ export default function RespostasRapidas() {
 
   function previewText() {
     const c = convs.find((x) => x.id === convId);
-    return sendItem ? sendItem.text.split('{nome}').join(c ? firstName(c) : '{nome}') : '';
+    let t = sendItem ? sendItem.text.split('{nome}').join(c ? firstName(c) : '{nome}') : '';
+    let when = null;
+    if (modeOf(sendItem) === 'schedule' && day && time) when = new Date(day + 'T' + time + ':00');
+    if (modeOf(sendItem) === 'cancel') {
+      const a = appts.find((x) => x.id === apptId);
+      if (a) when = new Date(a.scheduledAt);
+    }
+    if (when && !Number.isNaN(when.getTime())) {
+      const tz = 'America/Sao_Paulo';
+      const d = when.toLocaleDateString('pt-BR', { timeZone: tz, weekday: 'long', day: '2-digit', month: '2-digit' });
+      const h = when.toLocaleTimeString('pt-BR', { timeZone: tz, hour: '2-digit', minute: '2-digit' });
+      t = t.split('{data}').join(d).split('{hora}').join(h);
+    }
+    return t;
   }
 
   async function confirmSend() {
     const c = convs.find((x) => x.id === convId);
     if (!c || !sendItem) return;
+    const mode = modeOf(sendItem);
+    if (mode !== 'text') {
+      setSending(true);
+      setError('');
+      try {
+        let r;
+        if (mode === 'schedule') {
+          const when = new Date(day + 'T' + time + ':00');
+          r = await apiFetch('/whatsapp/conversations/' + c.id + '/schedule', {
+            method: 'POST',
+            body: JSON.stringify({ serviceId, professionalId, scheduledAt: when.toISOString(), text: sendItem.text }),
+          });
+        } else {
+          r = await apiFetch('/whatsapp/conversations/' + c.id + '/cancel', {
+            method: 'POST',
+            body: JSON.stringify({ appointmentId: apptId, text: sendItem.text }),
+          });
+        }
+        const who = (c.client && c.client.name) || 'a cliente';
+        const acao = mode === 'schedule' ? 'Horário marcado na Agenda' : 'Horário desmarcado na Agenda';
+        if (r && r.sent) setMessage(acao + ' e mensagem enviada para ' + who + '.');
+        else setMessage(acao + ', mas a mensagem NÃO foi enviada para ' + who + '. Envie manualmente pela tela de Conversas.');
+        setSendItem(null);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setSending(false);
+      }
+      return;
+    }
     setSending(true);
     setError('');
     try {
@@ -280,6 +379,58 @@ export default function RespostasRapidas() {
               ))}
             </select>
           </div>
+          {convId && modeOf(sendItem) === 'schedule' && (
+            <>
+              <div className="field">
+                <label htmlFor="rr-servico">Serviço</label>
+                <select id="rr-servico" value={serviceId} onChange={(e) => setServiceId(e.target.value)}>
+                  <option value="">Escolha o serviço...</option>
+                  {services.map((sv) => (
+                    <option key={sv.id} value={sv.id}>
+                      {sv.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="field">
+                <label htmlFor="rr-profissional">Profissional</label>
+                <select id="rr-profissional" value={professionalId} onChange={(e) => setProfessionalId(e.target.value)}>
+                  <option value="">Escolha a profissional...</option>
+                  {professionals.map((pr) => (
+                    <option key={pr.id} value={pr.id}>
+                      {pr.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="field">
+                <label htmlFor="rr-dia">Dia</label>
+                <input id="rr-dia" type="date" value={day} onChange={(e) => setDay(e.target.value)} />
+              </div>
+              <div className="field">
+                <label htmlFor="rr-hora">Hora</label>
+                <input id="rr-hora" type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+              </div>
+              <p className="page-sub">
+                O horário entra na Agenda e só depois a mensagem é enviada. Se o horário estiver ocupado, nada é enviado.
+                {sendItem.shortcut === 'remarcar' ? ' Este botão marca o horário novo. Para desmarcar o antigo, envie depois a resposta Cancelar.' : ''}
+              </p>
+            </>
+          )}
+          {convId && modeOf(sendItem) === 'cancel' && (
+            <div className="field">
+              <label htmlFor="rr-horario">Qual horário desmarcar</label>
+              <select id="rr-horario" value={apptId} onChange={(e) => setApptId(e.target.value)}>
+                <option value="">Escolha o horário...</option>
+                {appts.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {apptLabel(a)}
+                  </option>
+                ))}
+              </select>
+              {appts.length === 0 && <p className="page-sub">Esta cliente não tem horários marcados.</p>}
+            </div>
+          )}
           {convs.length === 0 && <p className="page-sub">Nenhuma conversa encontrada. A cliente precisa ter uma conversa no sistema.</p>}
           {convId && (
             <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
@@ -288,8 +439,8 @@ export default function RespostasRapidas() {
             </p>
           )}
           <div style={{ display: 'flex', gap: 10 }}>
-            <button className="btn-primary" onClick={confirmSend} disabled={!convId || sending}>
-              {sending ? 'Enviando...' : 'Enviar agora'}
+            <button className="btn-primary" onClick={confirmSend} disabled={!canSend() || sending}>
+              {sending ? 'Enviando...' : modeOf(sendItem) === 'schedule' ? 'Enviar e agendar' : modeOf(sendItem) === 'cancel' ? 'Enviar e desmarcar' : 'Enviar agora'}
             </button>
             <button className="btn-secondary" onClick={() => setSendItem(null)}>
               Cancelar
