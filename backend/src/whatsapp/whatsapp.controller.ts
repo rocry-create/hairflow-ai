@@ -191,6 +191,24 @@ export class WhatsappController {
     return { cancelled: true, sent };
   }
 
+  @Post('group-webhook')
+  async groupWebhook(@Body() payload: any) {
+    try {
+      await this.prisma.groupEvent.create({
+        data: { event: String((payload && payload.event) || ''), payload: payload || {} },
+      });
+    } catch (err) {
+      // nunca devolve erro ao Evolution
+    }
+    return { received: true };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('group-events')
+  async groupEvents() {
+    return this.prisma.groupEvent.findMany({ orderBy: { createdAt: 'desc' }, take: 20 });
+  }
+
   @Post('webhook')
   async webhook(@Body() payload: any) {
     try {

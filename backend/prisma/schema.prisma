@@ -234,3 +234,12 @@ model QuickReply {
 
   @@map("quick_replies")
 }
+
+model GroupEvent {
+  id        String   @id @default(uuid())
+  event     String?
+  payload   Json
+  createdAt DateTime @default(now())
+
+  @@map("group_events")
+}
