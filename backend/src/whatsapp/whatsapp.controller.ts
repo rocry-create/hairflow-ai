@@ -211,6 +211,16 @@ export class WhatsappController {
 
   @Post('webhook')
   async webhook(@Body() payload: any) {
+    const ev = String((payload && payload.event) || '').toLowerCase().replace(/[._-]/g, '');
+    const isGroupEvent = ev.includes('groupparticipants') || ev.includes('groupsupsert') || ev.includes('groupupdate');
+    if (isGroupEvent) {
+      try {
+        await this.prisma.groupEvent.create({ data: { event: String(payload.event), payload: payload || {} } });
+      } catch (err) {
+        // nunca devolve erro ao Evolution
+      }
+      return { received: true };
+    }
     try {
       const messageData = payload?.data;
       if (!messageData || messageData.key?.fromMe) {
