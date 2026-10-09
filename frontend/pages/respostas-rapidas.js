@@ -31,6 +31,12 @@ export default function RespostasRapidas() {
   const [saving, setSaving] = useState(false);
   const headingRef = useRef(null);
 
+  const [sendItem, setSendItem] = useState(null);
+  const [convs, setConvs] = useState([]);
+  const [convId, setConvId] = useState('');
+  const [sending, setSending] = useState(false);
+  const sendRef = useRef(null);
+
   const load = useCallback(async () => {
     try {
       setItems(await apiFetch('/quick-replies'));
@@ -113,6 +119,52 @@ export default function RespostasRapidas() {
       load();
     } catch (err) {
       setError(err.message);
+    }
+  }
+
+  useEffect(() => {
+    if (sendItem && sendRef.current) sendRef.current.focus();
+  }, [sendItem]);
+
+  async function openSend(item) {
+    setError('');
+    setMessage('');
+    setForm(null);
+    setConvId('');
+    setSendItem(item);
+    try {
+      setConvs((await apiFetch('/whatsapp/conversations')) || []);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  function firstName(c) {
+    return ((c && c.client && c.client.name) || '').trim().split(' ')[0] || 'cliente';
+  }
+
+  function previewText() {
+    const c = convs.find((x) => x.id === convId);
+    return sendItem ? sendItem.text.split('{nome}').join(c ? firstName(c) : '{nome}') : '';
+  }
+
+  async function confirmSend() {
+    const c = convs.find((x) => x.id === convId);
+    if (!c || !sendItem) return;
+    setSending(true);
+    setError('');
+    try {
+      const text = sendItem.text.split('{nome}').join(firstName(c));
+      await apiFetch('/whatsapp/conversations/' + c.id + '/reply', {
+        method: 'POST',
+        body: JSON.stringify({ text }),
+      });
+      setMessage('Resposta ' + sendItem.title + ' enviada para ' + ((c.client && c.client.name) || 'a cliente') + '.');
+      setSendItem(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSending(false);
     }
   }
 
@@ -212,6 +264,40 @@ export default function RespostasRapidas() {
         </form>
       )}
 
+      {sendItem && (
+        <section className="card" style={{ maxWidth: 640, marginBottom: 20 }}>
+          <h2 ref={sendRef} tabIndex={-1} style={{ marginTop: 0, fontSize: 18 }}>
+            {'Enviar: ' + sendItem.title}
+          </h2>
+          <div className="field">
+            <label htmlFor="rr-cliente">Enviar para qual cliente</label>
+            <select id="rr-cliente" value={convId} onChange={(e) => setConvId(e.target.value)}>
+              <option value="">Escolha a cliente...</option>
+              {convs.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {((c.client && c.client.name) || 'Sem nome') + ' - ' + ((c.client && c.client.phone) || '')}
+                </option>
+              ))}
+            </select>
+          </div>
+          {convs.length === 0 && <p className="page-sub">Nenhuma conversa encontrada. A cliente precisa ter uma conversa no sistema.</p>}
+          {convId && (
+            <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
+              <strong>Mensagem que será enviada: </strong>
+              {previewText()}
+            </p>
+          )}
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button className="btn-primary" onClick={confirmSend} disabled={!convId || sending}>
+              {sending ? 'Enviando...' : 'Enviar agora'}
+            </button>
+            <button className="btn-secondary" onClick={() => setSendItem(null)}>
+              Cancelar
+            </button>
+          </div>
+        </section>
+      )}
+
       {items === null && <p>Carregando as respostas...</p>}
 
       {items !== null && items.length === 0 && !form && (
@@ -236,6 +322,9 @@ export default function RespostasRapidas() {
               </div>
               <p style={{ margin: '0 0 12px', lineHeight: 1.5, whiteSpace: 'pre-wrap', color: 'var(--muted)' }}>{item.text}</p>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <button className="btn-primary" onClick={() => openSend(item)} aria-label={'Enviar ' + item.title + ' para uma cliente'}>
+                  Enviar
+                </button>
                 <button className="btn-secondary" onClick={() => copy(item)} aria-label={'Copiar o texto de ' + item.title}>
                   Copiar
                 </button>

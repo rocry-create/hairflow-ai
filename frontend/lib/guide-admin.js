@@ -29,6 +29,7 @@ export const adminGuide = {
           ul: [
             'Dashboard: visão geral do mês, com números e gráficos.',
             'Conversas IA: as conversas do WhatsApp e a conexão do número.',
+            'Respostas rápidas: mensagens prontas para a equipe usar nas conversas.',
             'Funil: o caminho de cada cliente, de contato novo até pós-venda.',
             'Clientes: cadastro das clientes e ficha capilar.',
             'Agenda: os horários marcados.',
@@ -37,7 +38,7 @@ export const adminGuide = {
             'Acessos da equipe: e-mail e senha de cada profissional.',
             'Financeiro: faturamento, comissões e lucro por período.',
             'Relatórios IA: números do atendimento e resumo escrito pela IA.',
-            'Campanhas: mensagens em massa para clientes.',
+            'Marketing: mensagens em massa para clientes.',
             'Configurações: nome do salão, horário de funcionamento, senha e aparência.',
             'Guia de uso: esta página.',
           ],
@@ -92,6 +93,7 @@ export const adminGuide = {
             'Escolha uma conversa para ler as mensagens.',
             'Cada conversa tem uma chave para ligar ou desligar a IA. Desligue quando a equipe quiser assumir a conversa e ligue de novo depois.',
             'Você pode escrever uma resposta como equipe, e ela é enviada pelo WhatsApp.',
+            'Acima da caixa de texto há a lista Resposta pronta. Escolha uma resposta e aperte Enviar resposta pronta para mandar na hora, ou Colocar na caixa para ajustar o texto antes de enviar. Onde estiver {nome}, entra o primeiro nome da cliente.',
             'Também dá para mudar a etapa do funil e excluir uma conversa.',
           ],
         },
@@ -99,6 +101,35 @@ export const adminGuide = {
         { p: 'Se o pedido foge do que ela sabe fazer, a IA diz que a equipe vai ajudar. Nesses casos, entre na conversa e responda.' },
         { h3: 'Conexão do número' },
         { p: 'Se o WhatsApp do salão cair, a IA para de responder. Nesta tela, conecte de novo lendo o QR Code com o WhatsApp do salão.' },
+      ],
+    },
+    {
+      id: 'respostas-rapidas',
+      h: 'Respostas rápidas',
+      blocks: [
+        { p: 'São mensagens prontas para a equipe usar na tela de Conversas, principalmente quando a IA está desligada e a equipe responde na mão. Assim você não precisa digitar tudo do zero.' },
+        { h3: 'Cadastrar e editar' },
+        {
+          ul: [
+            'No menu, abra Respostas rápidas.',
+            'Se a lista estiver vazia, aperte Adicionar exemplos para criar seis respostas de exemplo. Depois, edite os textos com os dados do seu salão, como endereço e chave Pix.',
+            'Para criar uma nova, aperte Nova resposta. Preencha o atalho, o nome, a categoria e o texto da mensagem, e aperte Salvar.',
+            'Para mudar uma resposta, aperte Editar no cartão dela. Para apagar, aperte Excluir.',
+            'O botão Copiar copia o texto da resposta, caso você queira usar em outro lugar.',
+            'O botão Enviar abre uma janela para escolher a cliente. Você vê a mensagem com o primeiro nome dela e só aperta Enviar agora para mandar pelo WhatsApp. A cliente precisa já ter uma conversa no sistema.',
+            'Use o campo Buscar resposta para achar uma resposta pelo nome, atalho ou texto.',
+          ],
+        },
+        { h3: 'Usar na conversa' },
+        {
+          ul: [
+            'Abra Conversas IA e escolha uma conversa.',
+            'Acima da caixa de texto, escolha uma resposta na lista Resposta pronta.',
+            'Aperte Enviar resposta pronta para mandar na hora, ou Colocar na caixa para ler e ajustar o texto antes de enviar.',
+            'Onde o texto tiver {nome}, o sistema coloca o primeiro nome da cliente.',
+          ],
+        },
+        { p: 'Atenção: o botão Enviar resposta pronta manda a mensagem de verdade pelo WhatsApp. Se não tiver certeza, use Colocar na caixa e confira o texto antes de enviar.' },
       ],
     },
     {
@@ -237,9 +268,9 @@ export const adminGuide = {
     },
     {
       id: 'campanhas',
-      h: 'Campanhas',
+      h: 'Marketing',
       blocks: [
-        { p: 'Campanhas mandam a mesma mensagem, com o nome da cliente, para um grupo de clientes.' },
+        { p: 'O Marketing manda a mesma mensagem, com o nome da cliente, para um grupo de clientes.' },
         {
           ol: [
             'Escreva um nome para a campanha.',
@@ -297,7 +328,7 @@ export const adminGuide = {
             'Para trocar, use o mesmo botão, que passa a se chamar Trocar e-mail ou senha.',
           ],
         },
-        { p: 'A profissional entra no mesmo endereço e vê só a Minha área. Ela não vê financeiro, campanhas nem os dados das outras profissionais. Na Minha área ela pode:' },
+        { p: 'A profissional entra no mesmo endereço e vê só a Minha área. Ela não vê financeiro, marketing nem os dados das outras profissionais. Na Minha área ela pode:' },
         {
           ul: [
             'Concluir um atendimento que já aconteceu, ou marcar que a cliente faltou.',
