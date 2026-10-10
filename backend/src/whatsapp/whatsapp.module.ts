@@ -8,10 +8,11 @@ import { WhatsappInstanceService } from './whatsapp-instance.service';
 import { EvolutionService } from './evolution.service';
 import { GeminiService } from './gemini.service';
 import { AppointmentsModule } from '../appointments/appointments.module';
+import { GroupAutomationService } from './group-automation.service';
 
 @Module({
   imports: [AppointmentsModule],
   controllers: [WhatsappController, WhatsappInstanceController],
-  providers: [WhatsappInstanceService, MaintenanceService, ReminderService, SchedulingService, EvolutionService, GeminiService],
+  providers: [WhatsappInstanceService, MaintenanceService, ReminderService, SchedulingService, EvolutionService, GeminiService, GroupAutomationService],
 })
 export class WhatsappModule {}

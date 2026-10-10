@@ -71,4 +71,24 @@ export class EvolutionService {
       return false;
     }
   }
+
+  async getGroupParticipants(groupId: string): Promise<{ phone: string; name: string | null }[] | null> {
+    try {
+      const url = this.baseUrl + '/group/participants/' + INSTANCE_NAME + '?groupJid=' + encodeURIComponent(groupId);
+      const res = await fetch(url, { headers: this.headers() });
+      if (!res.ok) return null;
+      const data: any = await res.json();
+      const list: any[] = Array.isArray(data) ? data : data.participants || [];
+      const out: { phone: string; name: string | null }[] = [];
+      for (const p of list) {
+        const raw = String((p && (p.phoneNumber || p.id)) || '');
+        if (raw.includes('@lid') && !p.phoneNumber) continue;
+        const phone = raw.split('@')[0].split(':')[0].replace(/\D/g, '');
+        if (phone) out.push({ phone, name: (p && p.name) || null });
+      }
+      return out;
+    } catch (err) {
+      return null;
+    }
+  }
 }
