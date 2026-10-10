@@ -15,7 +15,6 @@ const NAV = [
     items: [
       { href: '/conversations', label: 'Conversas IA', icon: 'chat' },
       { href: '/respostas-rapidas', label: 'Respostas rápidas', icon: 'chat' },
-      { href: '/whatsapp', label: 'WhatsApp', icon: 'phone' },
       { href: '/funnel', label: 'Funil', icon: 'grid' },
     ],
   },
@@ -36,6 +35,8 @@ const NAV = [
     section: 'Sistema',
     items: [
       { href: '/configuracoes', label: 'Configurações', icon: 'gear' },
+      { href: '/grupos', label: 'Grupos', icon: 'users' },
+      { href: '/whatsapp', label: 'WhatsApp', icon: 'phone' },
       { href: '/guia', label: 'Guia de uso', icon: 'book' },
     ],
   },
