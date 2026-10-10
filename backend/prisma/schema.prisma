@@ -243,3 +243,40 @@ model GroupEvent {
 
   @@map("group_events")
 }
+
+model GroupAutomation {
+  id                String   @id @default(uuid())
+  enabled           Boolean  @default(false)
+  groupId           String?
+  groupName         String?
+  baselineDone      Boolean  @default(false)
+  welcomeEnabled    Boolean  @default(true)
+  welcomeText       String   @default("Oi, {nome}! Seja bem-vinda ao nosso grupo.")
+  offerEnabled      Boolean  @default(true)
+  offerText         String   @default("{nome}, temos uma novidade para você!")
+  offerDelayMinutes Int      @default(10)
+  repeatAfterHours  Int      @default(24)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("group_automation")
+}
+
+model GroupMember {
+  id             String    @id @default(uuid())
+  groupId        String
+  phone          String
+  name           String?
+  present        Boolean   @default(true)
+  joinedAt       DateTime  @default(now())
+  welcomeDueAt   DateTime?
+  welcomeSentAt  DateTime?
+  offerDueAt     DateTime?
+  offerSentAt    DateTime?
+  lastSequenceAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([groupId, phone])
+  @@map("group_members")
+}
