@@ -27,7 +27,7 @@ export default function Login() {
   return (
     <div className="login-page" style={{ display: 'flex', minHeight: '100vh' }}>
       <Head>
-        <title>Entrar - HairFlow AI</title>
+        <title>Entrar - Melliun</title>
       </Head>
       <div
         className="login-hero"
@@ -57,21 +57,21 @@ export default function Login() {
               <path d="M12 2a5 5 0 0 0-5 5c0 2 1 3.5 2 5-3 1-5 4-5 8h16c0-4-2-7-5-8 1-1.5 2-3 2-5a5 5 0 0 0-5-5z" />
             </svg>
           </div>
-          HairFlow AI
+          Melliun
         </div>
 
         <div style={{ maxWidth: 420 }}>
           <h1 style={{ fontSize: 40, lineHeight: 1.15, marginBottom: 16 }}>
-            A recepcionista que nunca dorme.
+            A Atendente que nunca dorme.
           </h1>
           <p style={{ fontSize: 15, lineHeight: 1.6, color: 'rgba(255,255,255,0.85)' }}>
-            Atendimento por IA no WhatsApp, agenda inteligente, CRM e gestao completa para o
-            seu salao.
+            Atendimento por IA no WhatsApp, agenda inteligente, CRM e gestão completa para o
+            seu negócio.
           </p>
         </div>
 
         <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
-          HairFlow AI - feito para saloes de beleza
+          Melliun - feito para você e seu negócio
         </div>
       </div>
 
