@@ -52,9 +52,9 @@ export class EvolutionService {
     return res.json();
   }
 
-  async sendMessage(phone: string, text: string) {
+  async sendMessage(phone: string, text: string, instance: string = INSTANCE_NAME) {
     try {
-      const res = await fetch(this.baseUrl + '/message/sendText/' + INSTANCE_NAME, {
+      const res = await fetch(this.baseUrl + '/message/sendText/' + instance, {
         method: 'POST',
         headers: this.headers(),
         body: JSON.stringify({
@@ -72,9 +72,9 @@ export class EvolutionService {
     }
   }
 
-  async getGroupParticipants(groupId: string): Promise<{ phone: string; name: string | null }[] | null> {
+  async getGroupParticipants(groupId: string, instance: string = INSTANCE_NAME): Promise<{ phone: string; name: string | null }[] | null> {
     try {
-      const url = this.baseUrl + '/group/participants/' + INSTANCE_NAME + '?groupJid=' + encodeURIComponent(groupId);
+      const url = this.baseUrl + '/group/participants/' + instance + '?groupJid=' + encodeURIComponent(groupId);
       const res = await fetch(url, { headers: this.headers() });
       if (!res.ok) return null;
       const data: any = await res.json();

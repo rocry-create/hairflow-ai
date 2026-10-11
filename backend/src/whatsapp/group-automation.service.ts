@@ -2,6 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { EvolutionService } from './evolution.service';
 
+const GROUP_INSTANCE = 'melliun-grupo';
 const CHECK_EVERY_MS = 60 * 1000;
 const PAUSE_BETWEEN_MS = 8000;
 const MAX_SENDS_PER_RUN = 10;
@@ -44,7 +45,7 @@ export class GroupAutomationService implements OnModuleInit {
   private async sync() {
     const cfg = await this.prisma.groupAutomation.findFirst();
     if (!cfg || !cfg.enabled || !cfg.groupId) return;
-    const people = await this.evolution.getGroupParticipants(cfg.groupId);
+    const people = await this.evolution.getGroupParticipants(cfg.groupId, GROUP_INSTANCE);
     if (!people) return;
 
     const groupId = cfg.groupId;
@@ -113,7 +114,7 @@ export class GroupAutomationService implements OnModuleInit {
         take: MAX_SENDS_PER_RUN,
       });
       for (const m of list) {
-        const ok = await this.evolution.sendMessage(m.phone, fill(cfg.welcomeText, m.name));
+        const ok = await this.evolution.sendMessage(m.phone, fill(cfg.welcomeText, m.name), GROUP_INSTANCE);
         if (ok !== false) await this.prisma.groupMember.update({ where: { id: m.id }, data: { welcomeSentAt: new Date() } });
         else this.logger.warn('Boas-vindas nao enviada para ' + m.phone);
         sent++;
@@ -134,7 +135,7 @@ export class GroupAutomationService implements OnModuleInit {
         take: MAX_SENDS_PER_RUN - sent,
       });
       for (const m of list) {
-        const ok = await this.evolution.sendMessage(m.phone, fill(cfg.offerText, m.name));
+        const ok = await this.evolution.sendMessage(m.phone, fill(cfg.offerText, m.name), GROUP_INSTANCE);
         if (ok !== false) await this.prisma.groupMember.update({ where: { id: m.id }, data: { offerSentAt: new Date() } });
         else this.logger.warn('Oferta nao enviada para ' + m.phone);
         await sleep(PAUSE_BETWEEN_MS);
