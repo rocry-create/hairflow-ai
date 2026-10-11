@@ -9,6 +9,9 @@ export default function Grupos() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [connState, setConnState] = useState('');
+  const [qr, setQr] = useState(null);
+  const [loadingQr, setLoadingQr] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -23,6 +26,37 @@ export default function Grupos() {
   useEffect(() => {
     load();
   }, [load]);
+
+  async function checkConn() {
+    try {
+      const r = await apiFetch('/group-automation/status');
+      setConnState((r && r.state) || 'indisponivel');
+      if (r && r.state === 'open') setQr(null);
+    } catch (e) {
+      setConnState('indisponivel');
+    }
+  }
+
+  async function showQr() {
+    setLoadingQr(true);
+    setError('');
+    try {
+      const r = await apiFetch('/group-automation/qr');
+      setQr((r && r.base64) || null);
+      if (!r || !r.base64) setError('Não consegui gerar o QR Code. Tente de novo em alguns segundos.');
+      checkConn();
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoadingQr(false);
+    }
+  }
+
+  useEffect(() => {
+    checkConn();
+    const t = setInterval(checkConn, 5000);
+    return () => clearInterval(t);
+  }, []);
 
   function set(field, value) {
     setCfg({ ...cfg, [field]: value });
@@ -81,6 +115,30 @@ export default function Grupos() {
           {error}
         </div>
       )}
+
+      <section className="card" style={{ maxWidth: 720, marginBottom: 20 }}>
+        <h2 style={{ marginTop: 0, fontSize: 18 }}>WhatsApp do grupo</h2>
+        <p role="status" aria-live="polite">
+          {connState === 'open'
+            ? 'Número do grupo conectado.'
+            : 'Número do grupo não conectado. Conecte para a automação funcionar.'}
+        </p>
+        {connState !== 'open' && (
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
+            <button className="btn-primary" onClick={showQr} disabled={loadingQr}>
+              {qr ? 'Atualizar QR Code' : 'Conectar WhatsApp do grupo'}
+            </button>
+          </div>
+        )}
+        {qr && connState !== 'open' && (
+          <div>
+            <img src={qr} alt="QR Code para conectar o WhatsApp do grupo" style={{ width: 260, height: 260 }} />
+            <p className="page-sub" style={{ fontSize: 13 }}>
+              No celular do número do grupo, abra o WhatsApp, vá em Aparelhos conectados, toque em Conectar aparelho e aponte a câmera para este código. O código vence em cerca de 1 minuto. Se vencer, aperte Atualizar QR Code.
+            </p>
+          </div>
+        )}
+      </section>
 
       <section className="card" style={{ maxWidth: 720, marginBottom: 20 }}>
         <div className="field">
