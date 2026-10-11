@@ -56,7 +56,7 @@ export class GroupAutomationController {
   async groups(@Req() req: any) {
     this.assertAdmin(req);
     try {
-      const res = await fetch('http://hairflow_evolution:8080/group/fetchAllGroups/hairflow?getParticipants=false', {
+      const res = await fetch('http://hairflow_evolution:8080/group/fetchAllGroups/melliun-grupo?getParticipants=false', {
         headers: { apikey: process.env.EVOLUTION_API_KEY || '' },
       });
       if (!res.ok) return [];
@@ -81,5 +81,35 @@ export class GroupAutomationController {
       orderBy: { updatedAt: 'desc' },
       take: 100,
     });
+  }
+
+  @Get('status')
+  async status(@Req() req: any) {
+    this.assertAdmin(req);
+    try {
+      const res = await fetch('http://hairflow_evolution:8080/instance/connectionState/melliun-grupo', {
+        headers: { apikey: process.env.EVOLUTION_API_KEY || '' },
+      });
+      if (!res.ok) return { state: 'indisponivel' };
+      const data: any = await res.json();
+      return { state: (data && data.instance && data.instance.state) || 'indisponivel' };
+    } catch (err) {
+      return { state: 'indisponivel' };
+    }
+  }
+
+  @Get('qr')
+  async qr(@Req() req: any) {
+    this.assertAdmin(req);
+    try {
+      const res = await fetch('http://hairflow_evolution:8080/instance/connect/melliun-grupo', {
+        headers: { apikey: process.env.EVOLUTION_API_KEY || '' },
+      });
+      if (!res.ok) return { base64: null };
+      const data: any = await res.json();
+      return { base64: (data && data.base64) || null };
+    } catch (err) {
+      return { base64: null };
+    }
   }
 }
