@@ -1,6 +1,6 @@
 export const adminGuide = {
   intro:
-    'Este guia explica, passo a passo, como usar cada parte do HairFlow AI. Use o índice para ir direto ao assunto. Cada assunto tem um título, então com o leitor de tela você pode pular de título em título.',
+    'Este guia explica, passo a passo, como usar cada parte do Melliun. Use o índice para ir direto ao assunto. Cada assunto tem um título, então com o leitor de tela você pode pular de título em título.',
   sections: [
     {
       id: 'rotina',

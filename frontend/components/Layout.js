@@ -191,7 +191,7 @@ export default function Layout({ children, title }) {
   return (
     <div className="app">
       <Head>
-        <title>{(title ? title + ' - ' : '') + 'HairFlow AI'}</title>
+        <title>{(title ? title + ' - ' : '') + 'Melliun'}</title>
       </Head>
       <aside id="menu-lateral" className={'sidebar' + (menuOpen ? ' open' : '')} aria-label="Menu principal">
         <div className="brand">
