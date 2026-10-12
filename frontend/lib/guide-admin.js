@@ -144,6 +144,41 @@ export const adminGuide = {
       ],
     },
     {
+      id: 'grupos',
+      h: 'Grupos: mensagens automáticas',
+      blocks: [
+        { p: 'Quando uma pessoa entra no grupo de WhatsApp que você escolher, ela recebe uma mensagem de boas-vindas na hora e uma segunda mensagem depois do tempo que você definir. As duas vão no particular, e você pode mudar os textos quando quiser.' },
+        { h3: 'Antes de começar' },
+        {
+          ul: [
+            'A automação usa um número de WhatsApp separado do salão, só para o grupo. Assim, se alguém responder, a resposta não cai na IA do atendimento.',
+            'Esse número precisa estar dentro do grupo, de preferência como administrador.',
+            'Em Grupos, no primeiro cartão, aperte Conectar WhatsApp do grupo e leia o QR Code com o celular desse número, em Aparelhos conectados. O código vence em cerca de 1 minuto. Se vencer, aperte Atualizar QR Code.',
+          ],
+        },
+        { h3: 'Como configurar' },
+        {
+          ul: [
+            'Em Grupos, escolha o grupo na lista Grupo do WhatsApp e aperte Salvar.',
+            'Escreva o texto da boas-vindas e o texto da segunda mensagem. Onde estiver {nome}, entra o primeiro nome da pessoa.',
+            'Em Enviar depois de quantos minutos, digite o tempo da segunda mensagem. A boas-vindas sai na hora, e a segunda sai esse tempo depois da entrada da pessoa.',
+            'Marque Automação ligada e aperte Salvar de novo.',
+          ],
+        },
+        { h3: 'O que você precisa saber' },
+        {
+          ul: [
+            'O sistema confere o grupo a cada 1 minuto. Por isso a boas-vindas pode levar até cerca de 1 minuto depois da entrada.',
+            'Ao trocar de grupo, a automação desliga sozinha. Ligue de novo depois de salvar. Quem já está no grupo novo não recebe nada.',
+            'Quem sair e entrar de novo só recebe a sequência outra vez depois do tempo de repetição, em horas.',
+            'Se você mudar os textos, a mudança vale também para quem já está esperando a segunda mensagem.',
+            'As respostas das pessoas chegam no celular do número do grupo. Quem responde é você ou a equipe, na mão.',
+            'Em Quem entrou no grupo, você vê cada pessoa e se a boas-vindas e a segunda mensagem foram enviadas.',
+          ],
+        },
+      ],
+    },
+    {
       id: 'ia-agenda',
       h: 'A IA marcando horários',
       blocks: [
